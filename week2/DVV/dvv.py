@@ -1,6 +1,7 @@
 """dvv_mini_project.py"""
 import copy
 
+
 CAPACITY = {'Responsible AI': 25,
             'AI, Decision Making, and Society': 10,
             'Representation, Inference, and Reasoning in AI': 15}
@@ -39,73 +40,66 @@ def read_file(filename):
 'Representation, Inference, and Reasoning in AI': 2, 'Responsible AI': 3}}
     '''
     with open(filename, 'r', encoding='utf-8') as file:
+        main_dict = {}
         number = 0
-        main_dictionary = {}
-        dictio_1 = {}
-        dictio_2 = {}
-        dictio_0 = {}
-        students_mame = None #
+        scores = {}
+        prioritization = {}
+        students_name = None
         for line in file:
             line = line.replace("- ", "")
             line = line.strip().split(': ')
-            if "Prioritization" not in line[0] and "Name" not in line[0] \
-and "Date" not in line[0] and "Scores" not in line[0]:
+            if "Prioritization" not in line[0] and "Name" not in line[0] and \
+               "Date" not in line[0] and "Scores" not in line[0]:
                 if len(line) > 1:
-                    dictio_1[line[0]] = int(line[1])
+                    scores[line[0]] = int(line[1])
             if "Prioritization" in line[0]:
                 element = line[1].strip().split("; ")
-                for i in element:
-                    dictio_0[i[3:]] = int(i[0])
+                prioritization = {i[3:]: int(i[0]) for i in element}
             if "Name" in line:
-                if students_mame is not None: #
-                    dictio_2["Number"] = number
-                    dictio_2["Scores"] = dictio_1
-                    dictio_2['Prioritization'] = dict(sorted(dictio_0.items(), \
-key=lambda item: item[1]))
-                    main_dictionary[students_mame] = dictio_2 #
+                if students_name is not None:
+                    main_dict[students_name] = {
+                        'Number': number,
+                        'Scores': scores,
+                        'Prioritization': dict(sorted(prioritization.items(), key=lambda item: item[1]))
+                    }
                 number += 1
-                students_mame = line[1]
-                dictio_1 = {}
-                dictio_2 = {}
-                dictio_0 = {}
-        if students_mame is not None:
-            dictio_2["Number"] = number
-            dictio_2["Scores"] = dictio_1
-            dictio_2['Prioritization'] = dict(sorted(dictio_0.items(), \
-key=lambda item: item[1]))
-            main_dictionary[students_mame] = dictio_2
-        return main_dictionary
+                scores = {}
+                students_name = line[1]
+        if students_name is not None:
+            main_dict[students_name] = {
+                'Number': number,
+                'Scores': scores,
+                'Prioritization': dict(sorted(prioritization.items(), key=lambda item: item[1]))
+            }
+        return main_dict
 
 
 def second_prior(result, registration_1, number_prior):
     """second prioritization"""
-    result_1 = {key:[] for key in CAPACITY}
+    result_1 = {key: [] for key in CAPACITY}
+
     for person_name, information in registration_1.items():
         for course, subjects in PREREQUISITES.items():
-            if information['Prioritization'][course] == number_prior:
-                person_inf = [person_name]
-                subject_rate = 0
-                for subject in subjects:
-                    rate = information['Scores'][subject] * (PREREQUISITES[course][subject]/100)
-                    subject_rate += rate
-                person_inf.append(round(subject_rate, 2))
-                person_inf.append(information['Number'] * (-1))
-                result_1[course].append(tuple(person_inf))
+            if information['Prioritization'].get(course) == number_prior:
+                subject_rate = sum(
+    information['Scores'][subject] * (PREREQUISITES[course][subject] / 100)
+    for subject in subjects
+)
+                person_inf = (person_name, round(subject_rate, 2), information['Number'] * (-1))
+                result_1[course].append(person_inf)
 
-    for key, value in result_1.items():
-        result_1[key] = sorted(value, key=lambda x: (x[1], x[2]), reverse=True)
-
-    for key, value in result_1.items():
-        result[key].extend(result_1[key])
+    for course, persons in result_1.items():
+        persons.sort(key=lambda x: (x[1], x[2]), reverse=True)
+        result[course].extend(persons)
 
     return result
 
 def registrated_deleter(result, courses, registration_1):
-    """deletes registrated students"""
+    """deletes registered students"""
     for course in courses:
         result[course] = result[course][:CAPACITY[course]]
         for person in result[course]:
-            if registration_1.get(person[0]):
+            if person[0] in registration_1:
                 del registration_1[person[0]]
     return result
 
@@ -135,7 +129,7 @@ def selection(registration):
     registration_1 = copy.deepcopy(registration)
     result = {key: [] for key in CAPACITY}
 
-    courses = result.keys()
+    courses = list(result.keys())
     counter = 1
     while counter < 4:
         result = second_prior(result, registration_1, counter)
@@ -146,6 +140,6 @@ def selection(registration):
         result[key] = sorted(value, key=lambda x: (x[1], x[2]), reverse=True)
 
     for key, values in result.items():
-        for i, value in enumerate(values):
-            values[i] = value[:-1]
+        result[key] = [value[:-1] for value in values]
+
     return result
