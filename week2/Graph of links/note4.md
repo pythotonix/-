@@ -1,0 +1,1 @@
+Conected with [[note]].
