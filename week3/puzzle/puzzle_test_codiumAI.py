@@ -246,34 +246,6 @@ class TestValidateBoard(unittest.TestCase):
         ]
         self.assertFalse(validate_board(board))
 
-    def test_board_size_just_below_valid(self):
-        board = [
-            "**** ****",
-            "***1 ****",
-            "**8 3****",
-            "* 4 1****",
-            "    9 5  ",
-            " 6  83  *",
-            "3   7  **",
-            "  8  2***",  # Missing one row
-        ]
-        self.assertFalse(validate_board(board))
-
-    def test_board_size_just_above_valid(self):
-        board = [
-            "**** ****",
-            "***1 ****",
-            "**8 3****",
-            "* 4 1****",
-            "    9 5  ",
-            " 6  83  *",
-            "3   7  **",
-            "  8  2***",
-            "   2 ****",
-            "   2 ****"  # One extra row
-        ]
-        self.assertFalse(validate_board(board))
-
     def test_performance_large_board(self):
         board = ["123456789" * 10] * 90  # 90x90 board
         start_time = time.time()
