@@ -9,7 +9,7 @@
 # def validate_board(board:list)->bool:
 #     """
 #     return True if the board is correct due to the rules
-#     return False if the board if board isn't 
+#     return False if the board if board isn't
 #     >>> validate_board(["**** ****","***1 ****","**8 3****","* 4 1****",\
 # "     9 5 "," 6  83  *","3   7  **","  8  2***","  2  ****"])
 #     False
@@ -96,7 +96,7 @@ def validate_board(board:list)->bool:
         for j in i:
             if j.isnumeric():
                 lines.append(int(j))
-            elif j!=' ' and j!='*':
+            elif j not in (' ', '*'):
                 return False
         if lines and not norepeat_in_list(lines):
             return False
